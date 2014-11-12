@@ -1,7 +1,7 @@
 # Fetchlr
 Fetchlr is a web application that allows a user to "fetch" specific posts from a given Tumblr username/blog and post type. It queries data from the [Tumblr API] and parses variously formatted (format depends on the post type) JSON objects, fetches the posts corresponding to the specified post type, and displays them for the user.
 
-Fetchlr seeks to mitigate and provide specific functionalities that Tumblr lacks, mainly:
+Fetchlr seeks to mitigate the scenarios outlined under "Motivation," and provide specific functionalities that Tumblr lacks, mainly:
   - Getting posts of a specific post type (e.g. text, photo, audio) from a blog
   - Getting posts of a specific post type from liked posts of a blog
 
@@ -17,13 +17,11 @@ Fetchlr utilizes the following technologies and wouldn't have been possible with
 * [Twitter Bootstrap]
 * [jQuery]
 * [jQuery bootpag] - Helped greatly with pagination
-* [node.js] - Just for the web-server
-* [Digital Ocean] - Hosted on a Digital Ocean droplet
 
 ### Todo's
 Fetchlr still needs a lot of work. If you have suggestions or found a bug, please shoot me an email!
  - Add functionality for more post types
- - Clean-up and abstract more of the Javascript code
+ - Clean-up (naming, whitespace, etc) and abstract more of the Javascript code
  - Improve generation of dynamic pagination
  - Improve general application design, and styling of displayed posts (the CSS needs a lot of work)
 
