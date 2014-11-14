@@ -179,8 +179,6 @@ $(function() {
             maxVisible: 10
           });
 
-          displayPosts(results);
-
           // All post types default to being stored where key is posts
           if (post_type != "likes") {
             var posts = results.response.posts;
