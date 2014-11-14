@@ -5,6 +5,7 @@ $(function() {
 
   initSearchBar();
   handleLikesSelect();
+  handlePaginationClick();
 
   /**
    * Handles showing/hiding of additional filter options when
