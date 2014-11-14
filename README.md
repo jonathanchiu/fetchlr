@@ -20,7 +20,7 @@ Fetchlr utilizes the following technologies and wouldn't have been possible with
 
 ### Todo's
 Fetchlr still needs a lot of work. If you have suggestions or found a bug, please shoot me an email!
- - Add functionality for more post types
+ - Add functionality for more post types (quote, link, answer, video, chat)
  - Clean-up (naming, whitespace, etc) and abstract more of the Javascript code
  - Improve generation of dynamic pagination
  - Improve general application design, and styling of displayed posts (the CSS needs a lot of work)
