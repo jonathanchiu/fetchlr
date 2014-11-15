@@ -1,6 +1,7 @@
 $(function() {
 
-  var api_key = "";
+	var api_key        = "";
+	var posts_per_page = 10;
   var user;
 
   initSearchBar();
@@ -40,16 +41,14 @@ $(function() {
         var post_type = $("#post-type").val();
 
         if (post_type == "likes") {
-          // Gets 50 posts at a time
           var offset = (parseInt(num, 10) * 50) - 50;
         } else {
-          // Gets 20 posts at a time
-          var offset = (parseInt(num, 10) * 20) - 20;
+          var offset = (parseInt(num, 10) * 10) - 10;
         }
       }
-      var offset_formatted = "&offset=" + offset.toString();
+      var params = "&offset=" + offset + "&limit=" + posts_per_page;
       var liked_post_type = $("input:radio[name=likes-post-type]:checked").val();
-      fetchPosts(user, post_type, liked_post_type, offset_formatted);
+      fetchPosts(user, post_type, liked_post_type, params);
     });
   }
 
@@ -78,22 +77,55 @@ $(function() {
    */
   function formatPost(post, date, type, liked_post_type) {
 
+  	var formatted;
+
     if (type == "photo" || liked_post_type == "photo") {
       var img_src   = post.photos[0].alt_sizes[1].url;
       var img_html  = '<img src="' + img_src + '">';
       var caption   = post.caption;
-      var formatted = makePost(date + img_html + caption);
+      formatted = makePost(date + img_html + caption);
     }
 
     else if (type == "audio" || liked_post_type == "audio") {
       var player    = post.player;
       var caption   = post.caption;
-      var formatted = makePost(date + player + caption);
+      formatted = makePost(date + player + caption);
     }
 
     else if (type == "text" || liked_post_type == "text") {
-      var body = post.body;
-      var formatted = makePost(date + body);
+			var body  = post.body;
+			formatted = makePost(date + body);
+    } 
+
+    else if (type == "video") {
+
+    	/**
+    	 * Given HTML string representing video embed, convert it to a jQuery
+    	 * object, set its attributes to make it responsive, and return the
+    	 * responsive embed code
+    	 *
+    	 * video -> HTML5 video embed string
+    	 */
+    	function responsify(video) {
+
+    		var responsive_video = $(video).attr("class", "embed-responsive-item");
+    		responsive_video = responsive_video.prop("outerHTML");
+
+    		return '<div class="embed-responsive embed-responsive-16by9">' + 
+		    				responsive_video +
+		    				'</div>';
+    	}
+    	
+    	// Tumblr player doesn't have video controls, so we must invoke the attr
+    	if (post.video_type == "tumblr") { 
+    		var tumblr_video = $(post.player[2].embed_code);
+    		tumblr_video.attr("controls", "controls");
+    		var embed_video = tumblr_video.prop("outerHTML");
+    	} else {
+    		var embed_video = post.player[2].embed_code;
+    	}
+
+    	formatted = makePost(date + local(embed_video) + post.caption);
     }
 
     return formatted;
@@ -101,25 +133,30 @@ $(function() {
 
   /**
    * Check to see if the given API response contains an error
+   *
+   * results -> A JSON object returned from the API call
    */
   function didError(results) {
+
+  	var error = '';
+
     // Error was returned
     if (results.meta.status !== 200) {
 
       // Tumblr username doesn't exist
       if (results.meta.status === 404) {
-        var error = makeError("ERROR: User not found");
+        error = makeError("ERROR: User not found");
       }
       // Tumblr user has restricted his/her likes from being viewed
       else if (results.meta.status === 401) {
-        var error = makeError("ERROR: User's likes are restricted");
+        error = makeError("ERROR: User's likes are restricted");
       }
       else {
-        var error = makeError("ERROR: Some other error occurred :(");
+        error = makeError("ERROR: Some other error occurred :(");
       }
       return [true, error];
     } else {
-      return [false];
+      return [false, error];
     }
   }
 
@@ -138,34 +175,47 @@ $(function() {
     }
 
     if (post_type == "likes") {
-      var url = "http://api.tumblr.com/v2/blog/" + username + ".tumblr.com/likes?api_key=" + api_key + '&limit=50' + params;
+      var url = "http://api.tumblr.com/v2/blog/" + 
+      					username + ".tumblr.com/likes" + 
+      					"?api_key=" + api_key + 
+      					'&limit=50' + params;
     }
     else {
-      var url = "http://api.tumblr.com/v2/blog/" + username + ".tumblr.com" + "/posts/" + post_type + "?api_key=" + api_key + params;
+      var url = "http://api.tumblr.com/v2/blog/" + 
+      					username + ".tumblr.com" + 
+      					"/posts/" + post_type + 
+      					"?api_key=" + api_key + 
+      					params;
     }
+    
     console.log(url);
 
     $.ajax({
       url: url,
       dataType: 'jsonp',
       success: function(results) {
+
+      	var content = $("#content");
+
         console.log(results);
 
         // Dynamically calculate total number of pages to show for the pagination
         if (post_type != "likes") {
-          var page_count = Math.ceil(results.response.total_posts / 20);
+          var page_count = Math.ceil(results.response.total_posts / 10);
           console.log("Page Count: " + page_count);
           console.log("Num Posts: " + results.response.total_posts);
         } else {
-          var page_count = Math.ceil(results.response.liked_count / 20);
+          var page_count = Math.ceil(results.response.liked_count / 10);
           console.log("Page Count (Likes): " + page_count);
           console.log("Num Posts (Likes): " + results.response.liked_count);
         }
 
-        // Checks to see if error was returned
+        // Check to see if API response contained error
         if (didError(results)[0]) {
+
+        	// Remove any previously generated error msg from DOM
           $("#error").remove();
-          $("#content").append(didError(results)[1]);
+          content.append(didError(results)[1]);
 
           setTimeout(function() {
             $("#error").fadeOut(400);
@@ -200,14 +250,7 @@ $(function() {
           for (var i = 0; i < num_posts; i++) {
             var date_posted = "<h4>Date Posted: " + posts[i].date + "</h4>";
 
-            // If user wants text posts
-            if (post_type == "text") {
-              output += makePost(date_posted + posts[i].body);
-            }
-            else if (post_type == "photo") {
-              output += formatPost(posts[i], date_posted, post_type);
-            } 
-            else if (post_type == "audio") {
+            if (post_type == "audio") {
               // Only display audio posts that don't have the Spotify player
               if (posts[i].audio_type != "spotify") {
                 output += formatPost(posts[i], date_posted, post_type);
@@ -218,11 +261,52 @@ $(function() {
               if (current_post_type == liked_post_type) {
                 output += formatPost(posts[i], date_posted, undefined, liked_post_type);
               }
+            } else {
+            	output += formatPost(posts[i], date_posted, post_type);
             }
           }
 
-          $("#content").empty();
-          $('#content').html(output);
+          var pagination_preference = $("#pagination-preference").val();
+
+          /**
+           * If infinite, append posts to previously loaded posts
+           * If manual, always set to new posts, getting rid of all previous posts
+           */
+          if (pagination_preference == "infinite") {
+          	content.append(output);
+          } else {
+          	content.html(output);
+          }
+
+          // For each image returned in a post, add the img-responsive class
+          content.find('img').each(function() {
+          	$(this).attr('class', 'img-responsive');
+          });
+          
+          /**
+           * 
+           * Let's us know if we are good to go to load more data, prevents
+           * infinite call to the next set of data
+           */
+          var content_loaded = 1;
+
+          if (pagination_preference == "infinite") {
+          	$("#page-selection").hide();
+
+	          // Load next set of posts once user has scroll passed a certain point
+	          $(document).scroll(function() {
+					  	var units_from_bottom = $(document).height() - $(window).height() - $(window).scrollTop();
+
+					  	if (units_from_bottom < 500 && content_loaded == 1) {
+					  		$("#page-selection a:last").click();
+					  		content_loaded = 0;
+					  	}
+					  });
+
+	        } else {
+	        	$("#page-selection").show();
+	        }
+
           console.log(results);
         }
       }
@@ -240,12 +324,16 @@ $(function() {
       // On enter-press
       if (e.which == 13 || e.keyCode == 13) {
 
+      	$("#content").empty();
+      	$("#page-selection").bootpag({
+      		page: 1
+      	});
         user = $(this).val();
 
         if (post_type == "likes" && liked_post_type == undefined) {
           alert("You must select a post type for the liked posts returned");
         } else {
-          fetchPosts(user, post_type, liked_post_type, '');
+          fetchPosts(user, post_type, liked_post_type, '&limit=' + posts_per_page);
         }
         return false;
       }

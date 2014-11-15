@@ -25,6 +25,13 @@ Fetchlr still needs a lot of work. If you have suggestions or found a bug, pleas
  - Improve generation of dynamic pagination
  - Improve general application design, and styling of displayed posts (the CSS needs a lot of work)
 
+ ### Changelog
+ 11/15/14
+ - Added ability to fetch video posts
+ - Added infinite scroll option so users don't have to access pagination to get next set of posts
+ - Fixed up some pagination logic, still needs a little work
+ - Cleaned-up JS code, still needs work
+
 [Tumblr API]:https://www.tumblr.com/docs/en/api/v2
 [Digital Ocean]:https://www.digitalocean.com
 [node.js]:http://nodejs.org
