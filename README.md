@@ -1,8 +1,6 @@
 # Fetchlr
 
-<iframe src="http://gfycat.com/ifr/HonorableClosedDragon" frameborder="0" scrolling="no" width="706" height="752" style="-webkit-backface-visibility: hidden;-webkit-transform: scale(1);" ></iframe>
-
-![fetchlr](fetchlr.gif)
+![fetchlr](fetchlr_web.gif)
 
 Fetchlr allows a user to "fetch" posts of a specific post type from a given Tumblr username/blog, and displays them in a clean, minimalistic way. It interacts with the Tumblr API, parses and cleans up the JSON response, and returns a set of posts based on what the user has specified.
 
