@@ -1,3 +1,7 @@
+body,
+html {
+  font-family: 'Montserrat', sans-serif;
+}
 .description-title {
   font-size: 50px;
   line-spacing: -0.04em;
@@ -8,9 +12,33 @@
 .description-sub {
   font-size: 22px;
   font-weight: 400;
+  padding-top: 10px;
+  padding-bottom: 20px;
   letter-spacing: 0.01rem;
   color: #777;
 }
 .description {
+  padding-bottom: 0.5em;
+  padding-top: 30px;
+}
+.post {
+  padding: 2em 2em 2em 2em;
+  display: block;
+}
+.tags {
+  padding-top: 0.5em;
+}
+.tags a {
+  text-decoration: none;
+  color: #999999;
+}
+.tags a:hover {
+  text-decoration: underline;
+}
+#form-info {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+.photo {
   padding-bottom: 0.5em;
 }
