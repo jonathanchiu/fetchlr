@@ -1,55 +1,56 @@
 $(function() {
 
-  function initFixedPagination() {
-    $(window).scroll(function() {
-      if ($(this).scrollTop() > 280) {
-        $("#page-selection").addClass("pagination-fixed");
-      } else {
-        $("#page-selection").removeClass("pagination-fixed");
-      }
-    });
-  }
+  initFixedPagination();
+  initSearchBar();
+  handlePaginationClick();
 
   var posts_per_page = 10;
   var user;
   var avatars = { };
 
-  initFixedPagination();
-  initSearchBar();
-  handlePaginationClick();
+  /**
+   * If the user scrolls past a certain point, the pagination bar
+   * will follow such that it is always visible to the user
+   */
+  function initFixedPagination() {
+
+    $(window).scroll(function() {
+      if ($(this).scrollTop() > 280) {
+        $("#page-selection").addClass("pagination-fixed");
+      }
+      else {
+        $("#page-selection").removeClass("pagination-fixed");
+      }
+    });
+  }
+
 
   /**
    * Sets the offset variable whenever a page number is clicked. The offset is
    * calculated based on the page number, and is later used in the URL for
    * the API call
-   *
-   * num -> int (or string?) - represents the page number clicked
-   * offset -> int - represents which post number to start fetching from
    */
    function handlePaginationClick() {
+    // Variable "num" represents which page # on the pagination was clicked
     $('#page-selection').bootpag({ }).on("page", function(event, num) {
 
+      // Represents which post number to start the fetch from
       var offset;
       var post_type = $("#post-type").val();
 
-      if (num == 1) {
-        offset = 0;
-      }
-      else {
-        offset = (parseInt(num, 10) * 10) - 10;
-      }
+      offset = (num == 1) ? 0 : (parseInt(num, 10) * 10) - 10;
       fetchPosts(user, post_type, offset, posts_per_page);
     });
   }
 
   /**
-   * Generate div containing post content
+   * Generate string representing div containing post content
    */
    function makePost(content) {
     return '<div class="post">' + content + '</div>';
   }
   /**
-   * Generate div containing an error message
+   * Generate string representing div containing an error message
    */
    function makeError(content) {
     var error = '<div id="error"><p class="bg-danger">' + content + '</p></div>';
@@ -69,22 +70,17 @@ $(function() {
    * date -> A string representing the date the post was made
    * type -> A string representing the post type of the given post
    */
-   function formatPost(post, date, type) {
+  function formatPost(post, date, type) {
 
-     var formatted;
-     var liked_post_type = post.type;
-     var post_footer = '<div class="post-footer">';
-     var tags = '';
-     var reblog_info = '';
+    var formatted;
+    var liked_post_type = post.type;
+    var post_footer     = '<div class="post-footer">';
+    var all_tags        = '';
+    var tags            = '';
+    var reblog_info     = '';
 
-     if (post.tags.length > 0) {
-      $.each(post.tags, function(i, v) {
-        var tag = "#" + v + " ";
-        var url = "http://" + user + ".tumblr.com/tagged/" + v.replace(/ /g, "-");
-        tags += '<a href="' + url + '" target="_blank">' + tag + '</a>'
-      });
-    }
-
+    // If the post was a reblog, get the username it was reblogged from and get
+    // the original poster of the reblog
     if ("reblogged_from_name" in post && "reblogged_root_name" in post) {
       var reblogged_from_name = post.reblogged_from_name;
       var reblogged_from_link = '<a href="http://' + reblogged_from_name + '.tumblr.com">' + reblogged_from_name + '</a>';
@@ -94,77 +90,90 @@ $(function() {
       reblog_info              = "<small>Reblogged from: " + reblogged_from_link + '&nbsp;&middot;&nbsp;' + "Source: " + reblogged_root_link + '&nbsp;&middot;&nbsp;';
       reblog_info             += "Notes: " + post.note_count + "</small>";
       post_footer             += reblog_info;
-    } else {
+    }
+    // Else it is not a reblog so just get the # of notes
+    else {
       var note_count = '<div class="note-count">' + post.note_count + '</div>';
       post_footer += "<small>Notes: " + post.note_count + "</small>";
     }
 
-    var all_tags = '<div class="tags">' + tags + '</div>';
-    post_footer += all_tags + '</div>';
+     // If tags exist for a post
+    if (post.tags.length > 0) {
+      $.each(post.tags, function(i, v) {
+        var tag = "#" + v + " ";
+        var url = "http://" + user + ".tumblr.com/tagged/" + v.replace(/ /g, "-");
+        tags    += '<a href="' + url + '" target="_blank">' + tag + '</a>'
+      });
 
+      var all_tags = '<div class="tags">' + tags + '</div>';
+      post_footer += all_tags + '</div>';
+    }
+
+    // If post is a photo
     if (type == "photo" || liked_post_type == "photo") {
       var img_html = '';
       for (var i = 0; i < post.photos.length; i++) {
         var img_src  = post.photos[i].alt_sizes[0].url;
         img_html    += '<img class="photo" src="' + img_src + '">';
       }
-
       var caption  = post.caption;
       formatted    = makePost(date + img_html + caption + post_footer);
     }
 
+    // If post is audio
     else if (type == "audio" || liked_post_type == "audio") {
-     var player  = post.player;
-     var caption = post.caption;
-     formatted   = makePost(date + player + caption + post_footer);
-   }
+      var player  = post.player;
+      var caption = post.caption;
+      formatted   = makePost(date + player + caption + post_footer);
+    }
 
-   else if (type == "text" || liked_post_type == "text") {
-     var body  = post.body;
-     if (post.title === null) {
+    else if (type == "text" || liked_post_type == "text") {
+      var body  = post.body;
       var title = '';
-    } else {
-      var title = "<h3>" + post.title + "</h3>";
-    }
-    formatted = makePost(date + title + body + post_footer);
-  }
 
-  else if (type == "quote" || liked_post_type == "quote") {
-    var quote        = '<div class="quote"><blockquote>' + post.text + '</blockquote></div>';
-    var quote_source = '<div class="quote-source">' + post.source + '</div>';
-    formatted        = makePost(date + quote + quote_source + post_footer);
-  }
+      if (post.title != null) {
+        title = "<h3>" + post.title + "</h3>";
+      }
 
-  else if (type == "answer" || liked_post_type == "answer") {
-    var question = '<div class="question"><blockquote>' + post.question + '</blockquote></div>';
-    var answer   = '<div class="answer">' + post.answer + '</div>';
-    formatted    = makePost(date + question + answer + post_footer);
-  }
-
-  else if (type == "link" || liked_post_type == "link") {
-    var title        = "<h3>" + post.title + "</h3>";
-    var description  = post.description;
-    var original_url = '<a target="_blank" href="' + post.url + '">Source</a>'
-    formatted        = makePost(date + title + description + original_url + post_footer);
-  }
-
-  else if (type == "chat" || liked_post_type == "chat") {
-    var chat = '<div class="chat"><p>';
-
-    var dialogue = post.dialogue;
-    var dialogue_length = dialogue.length;
-
-    for (var i = 0; i < dialogue_length; i++) {
-      var sender   = "<strong>" + dialogue[i].label + "</strong> ";
-      var message  = dialogue[i].phrase;
-      var line     = sender + message + "<br>";
-      chat        += line;
+      formatted = makePost(date + title + body + post_footer);
     }
 
-    chat += '</p></div>';
-    formatted = makePost(date + chat + post_footer)
-  }
-    // magic of love
+    else if (type == "quote" || liked_post_type == "quote") {
+      var quote        = '<div class="quote"><blockquote>' + post.text + '</blockquote></div>';
+      var quote_source = '<div class="quote-source">' + post.source + '</div>';
+      formatted        = makePost(date + quote + quote_source + post_footer);
+    }
+
+    else if (type == "answer" || liked_post_type == "answer") {
+      var question = '<div class="question"><blockquote>' + post.question + '</blockquote></div>';
+      var answer   = '<div class="answer">' + post.answer + '</div>';
+      formatted    = makePost(date + question + answer + post_footer);
+    }
+
+    else if (type == "link" || liked_post_type == "link") {
+      var title        = "<h3>" + post.title + "</h3>";
+      var description  = post.description;
+      var original_url = '<a target="_blank" href="' + post.url + '">Source</a>'
+      formatted        = makePost(date + title + description + original_url + post_footer);
+    }
+
+    else if (type == "chat" || liked_post_type == "chat") {
+      var chat = '<div class="chat"><p>';
+
+      var dialogue = post.dialogue;
+      var dialogue_length = dialogue.length;
+
+      for (var i = 0; i < dialogue_length; i++) {
+        var sender   = "<strong>" + dialogue[i].label + "</strong> ";
+        var message  = dialogue[i].phrase;
+        var line     = sender + message + "<br>";
+        chat        += line;
+      }
+
+      chat += '</p></div>';
+      formatted = makePost(date + chat + post_footer)
+    }
+
     else if (type == "video" || liked_post_type == "video") {
     	/**
     	 * Given HTML string representing video embed, convert it to a jQuery
@@ -188,44 +197,14 @@ $(function() {
     		var tumblr_video = $(post.player[2].embed_code);
     		tumblr_video.attr("controls", "controls");
     		var embed_video = tumblr_video.prop("outerHTML");
-    	} else {
+    	}
+      else {
     		var embed_video = post.player[2].embed_code;
     	}
 
     	formatted = makePost(date + responsify(embed_video) + post.caption + post_footer);
     }
     return formatted;
-  }
-
-  /**
-   * Check to see if the given API response contains an error
-   *
-   * results -> A JSON object returned from the API call
-   */
-   function didError(results) {
-
-     var error = '';
-
-    // Error was returned
-    if (results.meta.status !== 200) {
-
-    	$("#page-selection").hide();
-
-      // Tumblr username doesn't exist
-      if (results.meta.status === 404) {
-        error = makeError("ERROR: User not found");
-      }
-      // Tumblr user has restricted his/her likes from being viewed
-      else if (results.meta.status === 401) {
-        error = makeError("ERROR: User's likes are restricted");
-      }
-      else {
-        error = makeError("ERROR: Some other error occurred :(");
-      }
-      return [true, error];
-    } else {
-      return [false, error];
-    }
   }
 
   /**
@@ -262,9 +241,8 @@ $(function() {
    * post_type -> String - Post type the user selected
    * params -> String - Any additional parameters for the API call
    */
-   function fetchPosts(username, post_type, offset, limit) {
+  function fetchPosts(username, post_type, offset, limit) {
 
-    //var tag       = $("#tag").val();
     var post      = (post_type == "likes") ? "likes" : "posts";
     var blog_name = username + ".tumblr.com";
     var url       = "/fetch";
@@ -275,13 +253,12 @@ $(function() {
       post_type: post_type,
       offset: offset,
       limit: limit
-      //tag: tag
     });
 
     /**
      * Get request to Node.js to fetch data
      */
-     $.ajax({
+    $.ajax({
       url: url,
       type: 'POST',
       contentType: 'application/json',
@@ -292,30 +269,43 @@ $(function() {
         $("#content").append(loader);
       },
       success: function(results) {
+
+        var error = jQuery.isEmptyObject(results);
         var content = $("#content");
         $("#loader").remove();
 
-        var error = jQuery.isEmptyObject(results);
-
+        // If the blog username the user provided produced an error response
         if (error) {
+          var error_msg = '';
           $("#page-selection").hide();
-          if (error && post_type == "likes") {
-            makeError("That user's likes are restricted from being viewed publicly.");
+          if (post_type == "likes") {
+            error_msg = "That user's likes are private."
           } else {
-            makeError("The username you entered does not exist");
+            error_msg = "The username you entered does not exist."
           }
+          makeError(error_msg);
         }
 
+        // Else, no error response was returned!
         else {
+          var posts;
+          var num_posts;
+          var output = '';
+
           $("#page-selection").show();
-          var output  = '';
 
           // Dynamically calculate total number of pages to show for the pagination
-          if (post_type != "likes") {
-            var page_count = Math.ceil(results.total_posts / 10);
-          } else {
-            var page_count = Math.ceil(results.liked_count / 10);
+          if (post_type == "likes") {
+            posts = results.liked_posts;
+            num_posts = results.liked_count;
           }
+          else {
+            posts = results.posts;
+            num_posts = results.total_posts;
+          }
+
+          // Calculate number of pages to show for the pagination
+          var page_count = Math.ceil(num_posts / 10);
 
           $('#page-selection').bootpag({
             total: page_count,
@@ -325,22 +315,12 @@ $(function() {
             leaps: false
           });
 
-          // All post types default to being stored where key is posts
-          if (post_type != "likes") {
-            var posts = results.posts;
-            var num_posts = results.posts.length;
-          }
-          // Liked posts are stored where key is liked_posts
-          else {
-            var posts = results.liked_posts;
-            var num_posts = results.liked_posts.length;
-          }
-
           /**
-           * For each Tumblr post, access the correct fields that correspond with
-           * the post post_type the user requested, in the JSON object returned from the API call
+           * For each Tumblr post, pass it as an argument along with the post
+           * date and type to the formatPost function which will handle displaying
+           * of the actual post content
            */
-           for (var i = 0; i < num_posts; i++) {
+          for (var i = 0; i < num_posts; i++) {
             var date       = new Date(posts[i].date);
             var time       = date.toLocaleTimeString();
             var month      = date.getMonth() + 1;
@@ -351,25 +331,16 @@ $(function() {
             var date_posted = '<div class="date">' + "<h4>" + time_stamp + "</h4>" +
             '<h4 style="color:#a4a4a4">' + time + "</h4></div>";
 
-
-            if (post_type == "audio") {
-              // Only display audio posts that don't have the Spotify player
-              if (posts[i].audio_type != "akfjdsjkfdsa") {
-                output += formatPost(posts[i], date_posted, post_type);
-              }
-            }
-            else {
-              output += formatPost(posts[i], date_posted, post_type);
-            }
+            output += formatPost(posts[i], date_posted, post_type);
           }
 
           var pagination_preference = $("#pagination-preference").val();
 
           /**
            * If infinite, append posts to previously loaded posts
-           * If manual, always set to new posts, getting rid of all previous posts
+           * If manual, replace all previous posts in DOM with new posts
            */
-           if (pagination_preference == "infinite") {
+          if (pagination_preference == "infinite") {
             content.append(output);
           } else {
             content.html(output);
@@ -381,7 +352,6 @@ $(function() {
           });
 
           /**
-           *
            * Let's us know if we are good to go to load more data, prevents
            * infinite call to the next set of data
            */
@@ -414,23 +384,35 @@ $(function() {
    function initSearchBar() {
 
     $("#user-search").on('keydown', function(e) {
-
-      var post_type = $("#post-type").val();
       // On enter-press
       if (e.which == 13 || e.keyCode == 13) {
-
-      	$("#pagination-preference").hide();
-
-      	$("#content").empty();
-      	$("#page-selection").bootpag({
-      		page: 1
-      	});
-
-        user = $(this).val();
-
-        fetchPosts(user, post_type, 0, posts_per_page);
+        $("#search-glyph").click();
         return false;
       }
     });
+
+    $("#search-glyph").click(function() {
+      search();
+      return false;
+    });
+  }
+
+  /**
+   * Search for posts from specified user and post type
+   */
+  function search() {
+
+    var post_type = $("#post-type").val();
+    $("#pagination-preference").hide();
+
+    $("#content").empty();
+    $("#page-selection").bootpag({
+      page: 1
+    });
+
+    user = $("#user-search").val();
+
+    fetchPosts(user, post_type, 0, posts_per_page);
+    return false;
   }
 });
