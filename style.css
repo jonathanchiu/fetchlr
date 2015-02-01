@@ -43,9 +43,6 @@ html {
 .photo {
   padding-bottom: 0.5em;
 }
-.post-content {
-  margin-right: 20px;
-}
 .avatar {
   float: left;
   padding-right: 1em;
@@ -60,5 +57,5 @@ html {
   color: #999;
 }
 .post-footer {
-  margin: 1em 0;
+  margin: 0.5em 0;
 }

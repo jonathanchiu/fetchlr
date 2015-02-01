@@ -40,6 +40,8 @@ $(function() {
 
       offset = (num == 1) ? 0 : (parseInt(num, 10) * 10) - 10;
       fetchPosts(user, post_type, offset, posts_per_page);
+
+      $("html, body").animate({ scrollTop: 0 }, 800);
     });
   }
 
@@ -82,12 +84,10 @@ $(function() {
     // If the post was a reblog, get the username it was reblogged from and get
     // the original poster of the reblog
     if ("reblogged_from_name" in post && "reblogged_root_name" in post) {
-      var reblogged_from_name = post.reblogged_from_name;
-      var reblogged_from_link = '<a href="http://' + reblogged_from_name + '.tumblr.com">' + reblogged_from_name + '</a>';
+      var reblogged_from_link = '<a href="http://' + post.reblogged_from_name + '.tumblr.com">' + post.reblogged_from_name + '</a>';
 
-      var reblogged_root_name  = post.reblogged_root_name;
-      var reblogged_root_link  = '<a href="http://' + reblogged_root_name + '.tumblr.com">' + reblogged_root_name + '</a>';
-      reblog_info              = "<small>Reblogged from: " + reblogged_from_link + '&nbsp;&middot;&nbsp;' + "Source: " + reblogged_root_link + '&nbsp;&middot;&nbsp;';
+      var reblogged_root_link = '<a href="http://' + post.reblogged_root_name + '.tumblr.com">' + post.reblogged_root_name + '</a>';
+      reblog_info             = "<small>Reblogged from: " + reblogged_from_link + '&nbsp;&middot;&nbsp;' + "Source: " + reblogged_root_link + '&nbsp;&middot;&nbsp;';
       reblog_info             += "Notes: " + post.note_count + "</small>";
       post_footer             += reblog_info;
     }
@@ -108,11 +108,17 @@ $(function() {
       var all_tags = '<div class="tags">' + tags + '</div>';
       post_footer += all_tags + '</div>';
     }
+    else {
+      post_footer += '</div>';
+    }
 
     // If post is a photo
     if (type == "photo" || liked_post_type == "photo") {
+
       var img_html = '';
-      for (var i = 0; i < post.photos.length; i++) {
+      var length = post.photos.length;
+
+      for (var i = 0; i < length; i++) {
         var img_src  = post.photos[i].alt_sizes[0].url;
         img_html    += '<img class="photo" src="' + img_src + '">';
       }
@@ -160,7 +166,7 @@ $(function() {
     else if (type == "chat" || liked_post_type == "chat") {
       var chat = '<div class="chat"><p>';
 
-      var dialogue = post.dialogue;
+      var dialogue        = post.dialogue;
       var dialogue_length = dialogue.length;
 
       for (var i = 0; i < dialogue_length; i++) {
@@ -185,7 +191,7 @@ $(function() {
       function responsify(video) {
 
         var responsive_video = $(video).attr("class", "embed-responsive-item");
-        responsive_video = responsive_video.prop("outerHTML");
+        responsive_video     = responsive_video.prop("outerHTML");
 
         return '<div class="embed-responsive embed-responsive-16by9">' +
         responsive_video +
@@ -288,9 +294,9 @@ $(function() {
 
         // Else, no error response was returned!
         else {
-          var posts;
-          var num_posts;
           var output = '';
+          var posts = '';
+          var num_posts = '';
 
           $("#page-selection").show();
 
@@ -315,12 +321,15 @@ $(function() {
             leaps: false
           });
 
+          console.log(page_count);
+          console.log(num_posts);
+
           /**
            * For each Tumblr post, pass it as an argument along with the post
            * date and type to the formatPost function which will handle displaying
            * of the actual post content
            */
-          for (var i = 0; i < num_posts; i++) {
+          for (var i = 0; i < posts_per_page; i++) {
             var date       = new Date(posts[i].date);
             var time       = date.toLocaleTimeString();
             var month      = date.getMonth() + 1;
