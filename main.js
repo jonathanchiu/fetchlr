@@ -41,7 +41,9 @@ $(function() {
       offset = (num == 1) ? 0 : (parseInt(num, 10) * 10) - 10;
       fetchPosts(user, post_type, offset, posts_per_page);
 
-      $("html, body").animate({ scrollTop: 0 }, 800);
+      if ($("#pagination-preference").val() !== "infinite") {
+        $("html, body").animate({ scrollTop: 0 }, 800);
+      }
     });
   }
 
@@ -375,7 +377,7 @@ $(function() {
             $(document).scroll(function() {
               var units_from_bottom = $(document).height() - $(window).height() - $(window).scrollTop();
 
-              if (units_from_bottom < 500 && content_loaded == 1) {
+              if (units_from_bottom < 1500 && content_loaded == 1) {
                 // Get the next page of posts
                 $("#page-selection a:last").click();
                 content_loaded = 0;
@@ -413,7 +415,7 @@ $(function() {
   function search() {
 
     var post_type = $("#post-type").val();
-    $("#pagination-preference").parent().remove();
+    $("#pagination-preference").parent().hide();
 
     $("#content").empty();
     $("#page-selection").bootpag({
