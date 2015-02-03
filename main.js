@@ -55,12 +55,12 @@ $(function() {
    * Generate string representing div containing an error message
    */
    function makeError(content) {
-    var error = '<div id="error"><p class="bg-danger">' + content + '</p></div>';
+    var error = '<div class="error"><p class="bg-danger">' + content + '</p></div>';
     $("#content").append(error);
 
     setTimeout(function() {
-      $("#error").fadeOut(400);
-    }, 1000);
+      $(".error").fadeOut(800);
+    }, 1600);
   }
 
   /**
@@ -276,18 +276,19 @@ $(function() {
       },
       success: function(results) {
 
-        var error = jQuery.isEmptyObject(results);
+        var error = jQuery.isEmptyObject(results) || results.total_posts === 0;
         var content = $("#content");
         $("#loader").remove();
 
         // If the blog username the user provided produced an error response
         if (error) {
+          $("#page-selection").hide();
           var error_msg = '';
           $("#page-selection").hide();
           if (post_type == "likes") {
-            error_msg = "That user's likes are private."
+            error_msg = "That user's likes are private.";
           } else {
-            error_msg = "The username you entered does not exist."
+            error_msg = "The username you entered does not exist or has no posts.";
           }
           makeError(error_msg);
         }
@@ -315,7 +316,7 @@ $(function() {
 
           $('#page-selection').bootpag({
             total: page_count,
-            maxVisible: 5,
+            maxVisible: 7,
             next: 'Next',
             prev: 'Previous',
             leaps: false
@@ -395,12 +396,12 @@ $(function() {
     $("#user-search").on('keydown', function(e) {
       // On enter-press
       if (e.which == 13 || e.keyCode == 13) {
-        $("#search-glyph").click();
+        $("#search-btn").click();
         return false;
       }
     });
 
-    $("#search-glyph").click(function() {
+    $("#search-btn").click(function() {
       search();
       return false;
     });
@@ -412,7 +413,7 @@ $(function() {
   function search() {
 
     var post_type = $("#post-type").val();
-    $("#pagination-preference").hide();
+    $("#pagination-preference").parent().remove();
 
     $("#content").empty();
     $("#page-selection").bootpag({

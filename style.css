@@ -51,11 +51,34 @@ html {
   position: fixed;
   top: -40px;
   z-index: 999;
-  margin-left: -155px;
+  left: 0;
+  right: 0;
 }
 .post small {
   color: #999;
 }
 .post-footer {
   margin: 0.5em 0;
+}
+.btn-wumbo {
+  padding: 14px 50px;
+  font-size: 22px;
+  line-height: normal;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
+#search {
+  text-align: center;
+  padding-bottom: 20px;
+  padding-top: 15px;
+}
+#search-btn {
+  background: #777;
+  color: #eee;
+  transition: all 0.5s ease 0s;
+}
+#search-btn:hover {
+  background: #36465D;
+  color: #eee;
 }
