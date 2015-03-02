@@ -1,6 +1,6 @@
 # Fetchlr
 
-![fetchlr](fetchlrweb.gif)
+![fetchlr](/images/fetchlrweb.gif)
 
 Fetchlr allows a user to "fetch" posts of a specific post type from a given Tumblr username/blog, and displays them in a clean, minimalistic way. It interacts with the Tumblr API, parses and cleans up the JSON response, and returns a set of posts based on what the user has specified.
 
@@ -9,7 +9,7 @@ Fetchlr aims to provide specific and targetted functionalities which Tumblr curr
   - Getting liked posts of a specific post type from a blog
 
 ### Motivation/Purpose
-I am a daily user of Tumblr and often times, my friends and I want to view posts of a specific post type, such as photos or audio, from a blog. Sometimes I want to read text posts my friends have posted as well. 
+I am a daily user of Tumblr and often times, my friends and I want to view posts of a specific post type, such as photos or audio, from a blog. Sometimes I want to read text posts my friends have posted as well.
 
 Most if not all blogs:
   - Make posts of varying types (text, audio, photo, quotes, etc)
@@ -58,6 +58,11 @@ Fetchlr still needs a lot of work. If you have suggestions or found a bug, pleas
 
 11/20/14
  - All post types have now been accounted for! :)
+
+3/2/15
+ - Tumblr recently (about 2-3 weeks ago) released a filter feature for blog
+ archives for the general public. However, they still haven't released a filter
+ feature for liked posts, which this app still fills a void for!
 
 [Tumblr API]:https://www.tumblr.com/docs/en/api/v2
 [Digital Ocean]:https://www.digitalocean.com
