@@ -286,7 +286,7 @@ function fetchPosts(username, post_type, offset, limit) {
     dataType: 'json',
     data: data,
     beforeSend: function() {
-      var loader = $('<img id="loader" style="display:block; margin:0 auto" src="loader.gif">');
+      var loader = $('<img id="loader" style="display:block; margin:0 auto" src="/images/loader.gif">');
 
       if (pagination_preference === "infinite") {
         $("#content").append(loader);
