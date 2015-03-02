@@ -1,0 +1,84 @@
+body,
+html {
+  font-family: 'Montserrat', sans-serif;
+}
+.description-title {
+  font-size: 50px;
+  letter-spacing: 0.01rem;
+  line-height: 1;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+.description-sub {
+  font-size: 22px;
+  font-weight: 400;
+  padding-top: 10px;
+  padding-bottom: 20px;
+  letter-spacing: 0.01rem;
+  color: #777;
+}
+.description {
+  padding-bottom: 0.5em;
+  padding-top: 30px;
+}
+.post {
+  padding: 2em 2em 2em 2em;
+  display: block;
+}
+.tags {
+  padding-top: 0.5em;
+}
+.tags a {
+  text-decoration: none;
+  font-size: 85%;
+  color: #999999;
+}
+.tags a:hover {
+  text-decoration: underline;
+}
+#form-info {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+.photo {
+  padding-bottom: 1em;
+}
+.avatar {
+  float: left;
+  padding-right: 1em;
+}
+.pagination-fixed {
+  position: fixed;
+  top: -40px;
+  z-index: 999;
+  left: 0;
+  right: 0;
+}
+.post small {
+  color: #999;
+}
+.post-footer {
+  margin: 0.5em 0;
+}
+.btn-wumbo {
+  padding: 14px 50px;
+  font-size: 22px;
+  line-height: normal;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
+#search {
+  text-align: center;
+  padding-bottom: 20px;
+  padding-top: 15px;
+}
+#search-btn {
+  background: #777;
+  color: #eee;
+  transition: all 0.5s ease 0s;
+}
+#search-btn:hover {
+  background: #36465D;
+  color: #eee;
+}
