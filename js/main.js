@@ -351,7 +351,8 @@ function fetchPosts(username, post_type, offset, limit) {
          * of the actual post content
          */
         for (var i = 0; i < num_posts; i++) {
-          var date_time = posts[i].date;
+          // Remove GMT string occurrence from end of timestamp
+          var date_time = posts[i].date.slice(0, -4);
           var date      = moment(date_time).format('M/D/YY');
           var time      = moment(date_time).format('h:mm:ss A');
 
